@@ -4,3 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+rocket = { version = "0.5.1", features = ["json", "secrets", "tls", "serde_json"] }
+once_cell = "1.21.3"
+rocket_dyn_templates = { version = "0.2.0", features = ["tera"] }
+serde = "1.0.228"
+argon2 = { version = "0.5.3", features = ["std"] }
+blake3 = "1.8.2"
+thiserror = "2.0.17"
+dotenvy = "0.15.7"
+diesel = { version = "2.3.3", features = ["postgres", "uuid", "chrono"] }
+futures = "0.3.31"
+uuid = { version = "1.18.1", features = ["v4", "serde"] }
+hex = "0.4.3"
+validator = { version = "0.20.0", features = ["derive"] }
