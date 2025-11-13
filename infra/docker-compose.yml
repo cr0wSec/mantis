@@ -11,8 +11,8 @@ services:
       POSTGRES_USER: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_INIT_ARGS: ${POSTGRES_INIT_ARGS}
-    volumes:
-      - ../migrations/2025-11-08-171112-0000_create_users/up.sql:/docker-entrypoint-initdb.d/up.sql
+    #volumes:
+    #  - ../migrations/2025-11-08-171112-0000_create_users/up.sql:/docker-entrypoint-initdb.d/up.sql
     networks:
       - mantis_network
 
