@@ -79,6 +79,10 @@ jobs:
           sudo apt-get install -y postgresql-client
 
       - name: Setup database
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         run: |
           psql -h postgres -U "$POSTGRES_USER" -c "CREATE DATABASE $POSTGRES_DB;"
           psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f ./db/migrations/2025-11-13-123316-0000_create_users/up.sql
