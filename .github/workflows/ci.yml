@@ -63,7 +63,7 @@ jobs:
           psql -h localhost \
                -U "${{ secrets.POSTGRES_USER }}" \
                -d "${{ secrets.POSTGRES_DB }}" \
-               -f ./db/migrations/2025-11-13-123316-0000_create_users/up.sql
+               -f ./migrations/2025-11-13-123316-0000_create_users/up.sql
 
       - name: Run tests
         run: cargo test --all
