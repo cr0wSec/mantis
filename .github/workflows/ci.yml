@@ -5,7 +5,6 @@ on:
   pull_request:
 
 env:
-  PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
   POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
@@ -82,7 +81,7 @@ jobs:
       - name: Setup database
         run: |
           psql -h localhost -U "$POSTGRES_USER" -c "CREATE DATABASE $POSTGRES_DB;"
-          psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f ./db/migrations/00000000000000_diesel_initial_setup/up.sql
+          psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f ./db/migrations/2025-11-13-123316-0000_create_users/up.sql
 
       - name: Run tests
         run: cargo test
