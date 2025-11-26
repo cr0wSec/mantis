@@ -45,7 +45,7 @@ jobs:
           --health-retries=5
 
     env:
-      DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ job.services.postgres.hostname }}:5432/${{ secrets.POSTGRES_DB }}
+      DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ secrets.POSTGRES_DB }}
 
     steps:
       - uses: actions/checkout@v4
@@ -58,13 +58,14 @@ jobs:
 
       - name: Run migrations
         run: |
-          psql -h ${{ job.services.postgres.hostname }} \
+          psql -h postgres \
                -U "${{ secrets.POSTGRES_USER }}" \
                -d "${{ secrets.POSTGRES_DB }}" \
                -f ./db/migrations/2025-11-13-123316-0000_create_users/up.sql
 
       - name: Run tests
         run: cargo test --all
+
   #
   # Cargo Audit job
   #
