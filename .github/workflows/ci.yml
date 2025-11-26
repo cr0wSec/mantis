@@ -5,12 +5,6 @@ on:
   pull_request:
 
 env:
-  PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-  DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
-  POSTGRES_HOST_AUTH_METHOD: trust
   RUST_BACKTRACE: full
 
 jobs:
@@ -20,21 +14,6 @@ jobs:
   build-job:
     name: Build
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:latest
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_HOST_AUTH_METHOD: trust
-        options: >-
-          --health-cmd="pg_isready -U $POSTGRES_USER"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +21,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build
-        run: cargo build
+        run: cargo build --all-targets
 
   #
   # Test job
@@ -51,15 +30,12 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     needs: build-job
-    environment: development
     services:
       postgres:
         image: postgres:latest
-        ports:
-          - 5432:5432
         env:
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_HOST_AUTH_METHOD: trust
         options: >-
@@ -68,6 +44,9 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
+    env:
+      DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ secrets.POSTGRES_DB }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -75,30 +54,23 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install psql
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Setup database
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         run: |
-          psql -h postgres -U "$POSTGRES_USER" -c "CREATE DATABASE $POSTGRES_DB;"
-          psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f ./db/migrations/2025-11-13-123316-0000_create_users/up.sql
+          # The container already creates the database, so just run migrations
+          psql -h postgres -U "${{ secrets.POSTGRES_USER }}" -d "${{ secrets.POSTGRES_DB }}" -f ./db/migrations/2025-11-13-123316-0000_create_users/up.sql
 
       - name: Run tests
-        run: cargo test
+        run: cargo test --all
 
   #
-  # Audit job
+  # Cargo Audit job
   #
   audit-job:
     name: Cargo Audit
     runs-on: ubuntu-latest
     needs: build-job
-
     steps:
       - uses: actions/checkout@v4
 
@@ -112,27 +84,23 @@ jobs:
         run: cargo audit -D warnings
 
   #
-  # Static analysis (Clippy + fmt)
+  # Static Analysis (Clippy + fmt)
   #
   sast-job:
     name: SAST
     runs-on: ubuntu-latest
     needs: build-job
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust stable + nightly
-        uses: dtolnay/rust-toolchain@master
+      - name: Install Rust + Clippy
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          components: clippy
-
-      - name: Install rustfmt nightly
-        run: rustup component add --toolchain nightly rustfmt
+          components: clippy,rustfmt
 
       - name: Run Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Check formatting
-        run: cargo +nightly fmt --check
+        run: cargo fmt --all -- --check
