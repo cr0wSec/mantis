@@ -44,9 +44,6 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-    env:
-      DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ secrets.POSTGRES_DB }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -56,9 +53,15 @@ jobs:
       - name: Install psql
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Setup database
+      - name: Wait for Postgres
         run: |
-          # The container already creates the database, so just run migrations
+          until pg_isready -h postgres -U "${{ secrets.POSTGRES_USER }}" > /dev/null 2>&1; do
+            echo "Waiting for Postgres..."
+            sleep 1
+          done
+
+      - name: Run migrations
+        run: |
           psql -h postgres -U "${{ secrets.POSTGRES_USER }}" -d "${{ secrets.POSTGRES_DB }}" -f ./db/migrations/2025-11-13-123316-0000_create_users/up.sql
 
       - name: Run tests
