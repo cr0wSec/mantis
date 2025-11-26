@@ -80,8 +80,8 @@ jobs:
 
       - name: Setup database
         run: |
-          psql -h localhost -U "$POSTGRES_USER" -c "CREATE DATABASE $POSTGRES_DB;"
-          psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f ./db/migrations/2025-11-13-123316-0000_create_users/up.sql
+          psql -h postgres -U "$POSTGRES_USER" -c "CREATE DATABASE $POSTGRES_DB;"
+          psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f ./db/migrations/2025-11-13-123316-0000_create_users/up.sql
 
       - name: Run tests
         run: cargo test
