@@ -37,4 +37,4 @@ impl ServerConfig {
 }
 
 // available globally
-pub static SERVER_CONFIG: Lazy<ServerConfig> = Lazy::new(|| ServerConfig::new());
+pub static SERVER_CONFIG: Lazy<ServerConfig> = Lazy::new(ServerConfig::new);
