@@ -1,0 +1,10 @@
+{% include "layout" %}
+
+<section >
+    <h1>Index</h1>
+    <div>
+        <a href="/register">Create an account</a>
+
+        <a href="/login">Log in to account</a>
+    </div>
+</section>

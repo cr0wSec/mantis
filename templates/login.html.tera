@@ -1,0 +1,17 @@
+{% include "layout" %}
+
+<section >
+    <h1 >Log in to your account</h1>
+    <form action="/api/auth/login" method="post">
+        <label for="email" >Private / work email:</label>
+        <input type="email" id="email" name="email" required>
+        <br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br><br>
+        <div>
+            <a href="/">Cancel login</a>
+            <button type="submit">Log in to my account</button>
+        </div>
+    </form>
+</section>
