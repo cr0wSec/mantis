@@ -20,5 +20,3 @@ pub struct RegisterForm {
     )]
     confirm_password: String,
 }
-
-

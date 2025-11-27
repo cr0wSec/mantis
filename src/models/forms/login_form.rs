@@ -9,5 +9,3 @@ pub struct LoginForm {
     #[validate(length(min = 1, max = 64))]
     password: String,
 }
-
-
