@@ -15,6 +15,6 @@ fn rocket() -> Rocket<Build> {
     let figment = rocket::Config::figment().merge(("secret_key", SERVER_CONFIG.secret_key.clone()));
 
     rocket::custom(figment)
-        .mount("/", routes![get_index, get_login, get_register])
+        .mount("/api/", routes![get_index, get_login, get_register])
         .attach(Template::fairing())
 }
